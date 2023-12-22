@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>👟 Trusty Treads</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  </head>
+  <body>
+    <section id="options">
+      <h1>Trusty Treads</h1>
+      <div id="show">
+        <label for="show-select">Show:</label>
+        <select name="show" id="show-select">
+          <option value="12">12</option>
+          <option value="24">24</option>
+          <option value="48">48</option>
+        </select>
+      </div>
+      <div id="brand">
+        <label for="brand-select">Brand:</label>
+        <select name="brand" id="brand-select"></select>
+      </div>
+      <div id="sort">
+        <label for="sort-select">Sort:</label>
+        <select name="sort" id="sort-select">
+          <option value="price-asc">Cheaper</option>
+          <option value="price-desc">Expensive</option>
+          <option value="date-asc">Recently released</option>
+          <option value="date-desc">Anciently released</option>
+        </select>
+      </div>
+      <div>
+      <input type="checkbox" id="showOnly-select-sale">Available on Vinted</input>
+      </div>
+      <div id="showOnly-select-favorite" onclick="changeFavorites()">Show favorites
+      </div>
+    </section>
+    <br>
+    <section id="products"></section>
+    <br>
+    <footer>
+      <span id = "prev-page">PREVIOUS</span>
+      <pre>     </pre>
+      <div id = "page"></div>
+      <pre>     </pre>
+      <span id = "next-page">NEXT</span>
+    </footer>
+  </body>
+    <script>
+    function loadInfo()
+    {
+      if(document.getElementById("products").innerHTML == ""){
+        document.getElementById("products").innerHTML = "First load, please wait...";
+      }
+    }
+    setTimeout(loadInfo, 200);
+    </script>
+    <script type="text/javascript" charset="UTF-8" src="portfolio.js"></script>
+  </body>
+</html>
