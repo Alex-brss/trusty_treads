@@ -185,9 +185,17 @@ const renderProducts = products => {
       <span style="color: green; font-weight:bold; margin-bottom : -10px;">Vinted : ${product.vinted_price} € </span> </a>
       ${stars}
      ` : `<span style="color: red; cursor: default;font-weight:bold">Unavailable on Vinted</span><span class="stars"><pre> </pre></span>`;
+
+     const rightArrow = product.vinted_img !== null ? `<span class="right-arrow" data-img="${product.vinted_img}">〉</span>` : "";
+     const leftArrow = product.vinted_img !== null ? `<span class="left-arrow" data-img="${product.img}" style="display:none">〈</span>` : "";
+
       return `
       <div class="product" id=${product.id}>
-        <img src="${product.img !== undefined ? product.img : "noimg.png"}" alt="${product.name}" />
+        <div class="product-img">
+        ${leftArrow}
+        <img src="${product.img !== null ? product.img : "noimg.png"}" alt="${product.name}" />
+        ${rightArrow}
+        </div>
         <div class="product-info">
         <span style="font-weight: bold;">${product.brand}</span>
         <span>${product.name}</span>
@@ -226,16 +234,6 @@ const renderPagination = pagination => {
   nextPage.className = currentPage == pageCount ? "is-disabled" : "is-active";
 };
 
-/**
- * Render page selector
- * @param  {Object} pagination
- */
-const renderIndicators = pagination => {
-  const {count} = pagination;
-
-  spanNbProducts.innerHTML = count;
-};
-
 
 const renderBrands = brands => {
   brands.sort();
@@ -249,6 +247,32 @@ const renderBrands = brands => {
 const render = (products, pagination) => {
   renderProducts(products);
   renderPagination(pagination);
+
+  // Enable right-arrow listener
+  document.querySelectorAll(".right-arrow").forEach(element => {
+    element.addEventListener('click', () => {
+      // Accéder à l'élément parent .product, puis trouver l'image à l'intérieur et changer sa source
+      element.closest('.product').querySelector('img').src = element.getAttribute('data-img');
+
+      // Changer la visibilité des flèches
+      element.style.display = "none";
+      element.closest('.product').querySelector('.left-arrow').style = "";
+      element.closest('.product').querySelector('img').style = "margin-left: -30px;"
+    });
+  });
+
+  // Enable left-arrow listener
+  document.querySelectorAll(".left-arrow").forEach(element => {
+    element.addEventListener('click', () => {
+      // Accéder à l'élément parent .product, puis trouver l'image à l'intérieur et changer sa source
+      element.closest('.product').querySelector('img').src = element.getAttribute('data-img');
+
+      // Changer la visibilité des flèches
+      element.style.display = "none";
+      element.closest('.product').querySelector('.right-arrow').style = "";
+      element.closest('.product').querySelector('img').style = ""
+    });
+  });
 };
 
 function addToFavorite(product) {
@@ -328,7 +352,14 @@ nextPage.addEventListener('click', async (event) => {
 });
 
 document.addEventListener('DOMContentLoaded', async () => {
-  const products = await fetchProducts();
+  var elementsByLigne = parseInt((document.scrollingElement.clientWidth - 8) / 290);
+  document.getElementById("show-select").innerHTML = `
+  <option value="${3*elementsByLigne}">${3*elementsByLigne}</option>
+  <option value="${6*elementsByLigne}">${6*elementsByLigne}</option>
+  <option value="${9*elementsByLigne}">${9*elementsByLigne}</option>
+  `
+
+  const products = await fetchProducts(1,3*elementsByLigne);
 
   setCurrentProducts(products);
   render(currentProducts, currentPagination);

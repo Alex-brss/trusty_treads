@@ -67,15 +67,23 @@ h1 {
   margin: 10px;
 }
 
+.product-img {
+  display: flex; /* Utiliser flexbox */
+  align-items: center; /* Centrer les éléments verticalement */
+  justify-content: space-between; /* Espacer les éléments à l'intérieur */
+}
+
 .product a {
   color: #333;
   text-decoration: none;
 }
 
 .product img {
-  max-width: 100%;
   border-radius: 5px;
   margin-bottom: 10px;
+  object-fit: cover; /* Assure que l'image couvre la zone sans se déformer */
+  width: 250px;      /* Largeur fixe pour le carré */
+  height: 250px;     /* Hauteur fixe pour le carré */
 }
 
 .product h2 {
@@ -93,6 +101,27 @@ h1 {
     transition: transform 0.1s ease-in-out;
     background-color: #fafafa;
   }
+
+.right-arrow {
+  cursor: pointer;
+  opacity: 0.2;
+  font-size: 30px;
+}
+
+.right-arrow:hover {
+  opacity: 0.4;
+}
+
+.left-arrow {
+  cursor: pointer;
+  opacity: 0.2;
+  font-size: 30px;
+  transform: translate(-30px);
+}
+
+.left-arrow:hover {
+  opacity: 0.4;
+}
 
 .product-info button {
   background-color: #333;
