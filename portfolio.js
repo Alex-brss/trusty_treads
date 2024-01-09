@@ -15,6 +15,7 @@ const productDiv = document.querySelectorAll(".product");
 const page = document.querySelector("#page");
 const prevPage = document.querySelector("#prev-page");
 const nextPage = document.querySelector("#next-page");
+const searchInput = document.querySelector("#search-input");
 
 // current products on the page
 let currentProducts = [];
@@ -28,6 +29,7 @@ let p95 = 0;
 let brands = [];
 let firstRenderBrands = true;
 let favoritesChecked = false;
+let searchJustChanged = false;
 
 /**
  * Set global value
@@ -38,6 +40,32 @@ const setCurrentProducts = ({result, meta}) => {
   currentProducts = result;
   currentPagination = meta;
 };
+
+function moteurRecherche(elmts, searchStr) {
+  let results = {};
+
+  // Convertir la chaîne de recherche en minuscules une seule fois
+  const searchKeywords = searchStr.toLowerCase().split(" ");
+
+  elmts.forEach(elmt => {
+    if(elmt.real_name === null) return;
+    const nameTokens = elmt.real_name.toLowerCase().split(" ");
+
+    nameTokens.forEach(token => {
+        searchKeywords.forEach(keyword => {
+            if (keyword === token) {
+                results[elmt.id] = (results[elmt.id] || 0) + (keyword.length * 3);
+            } else if (token.includes(keyword)) {
+                results[elmt.id] = (results[elmt.id] || 0) + (keyword.length * 2);
+            } else if (keyword.includes(token)) {
+                results[elmt.id] = (results[elmt.id] || 0) + keyword.length;
+            }
+        });
+    });
+  });
+
+  return elmts.filter(elmt => elmt.id in results).sort((a, b) => (results[b.id]) - (results[a.id]));
+}
 
 /**
  * Fetch products from api
@@ -133,20 +161,24 @@ const fetchProducts = async (page = 1, size = 12, brand = "All", sortBy = "price
       return new Date(a.scrapDate) > new Date(b.scrapDate) ? a : b;
     }).scrapDate : "Nan";
 
-    if(result.length > 0)
-    {
-      p50 = [...result].sort((a, b) => a.price - b.price)[Math.floor(result.length / 2)].price;
-      p90 = [...result].sort((a, b) => a.price - b.price)[Math.floor(result.length * 0.9)].price;
-      p95 = [...result].sort((a, b) => a.price - b.price)[Math.floor(result.length * 0.95)].price;
-    }
-    else
-    {
-      p50 = 0;
-      p90 = 0;
-      p95 = 0;
+    if(searchInput.value.trim() !== "") {
+      result = moteurRecherche(result, searchInput.value.trim());
+      if (searchJustChanged) {
+        page = 1;
+        searchJustChanged = false;
+      }
+      meta = {
+        currentPage: page,
+        pageCount: Math.ceil(result.length / size),
+        pageSize: size,
+        count: result.length
+      };
     }
 
-    var result = result.slice((page - 1) * size, page * size);
+    result = result.slice((page - 1) * size, page * size);
+
+    console.log(result);
+
     return {result, meta};
     
   } catch (error) {
@@ -347,6 +379,22 @@ nextPage.addEventListener('click', async (event) => {
   }
   const products = await fetchProducts(currentPagination.currentPage + 1, currentPagination.pageSize, brandSelect.value, sortSelect.value, [showOnlySelectSale.checked, false, favoritesChecked]);
 
+  setCurrentProducts(products);
+  render(currentProducts, currentPagination);
+});
+
+searchInput.addEventListener('change', async (event) => {
+  const products = await fetchProducts(1, currentPagination.pageSize, brandSelect.value, sortSelect.value, [showOnlySelectSale.checked, false, favoritesChecked]);
+
+  searchJustChanged = true;
+  setCurrentProducts(products);
+  render(currentProducts, currentPagination);
+});
+
+searchInput.addEventListener('keyup', async (event) => {
+  const products = await fetchProducts(1, currentPagination.pageSize, brandSelect.value, sortSelect.value, [showOnlySelectSale.checked, false, favoritesChecked]);
+
+  searchJustChanged = true;
   setCurrentProducts(products);
   render(currentProducts, currentPagination);
 });
